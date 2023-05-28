@@ -28,6 +28,42 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const menuCollection = client.db("bistroDb").collection('menu');
+    const reviewCollection = client.db("bistroDb").collection('reviews');
+    const cartCollection = client.db("bistroDb").collection('carts');
+
+    app.get('/menu', async(req, res) => {
+        const result = await menuCollection.find().toArray();
+        res.send(result);
+    })
+
+    app.get('/review', async(req, res) => {
+        const result = await reviewCollection.find().toArray();
+        res.send(result);
+    })
+
+
+    // cart collection
+    app.get('/carts', async(req, res) => {
+      const email = req.query.email;
+      if(!email){
+        res.send([]);
+      }
+      const query = {email: email};
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.post('/carts', async(req, res)=> {
+      const item = req.body;
+      console.log(item);
+      const result = await cartCollection.insertOne(item);
+      res.send(result);
+    })
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -48,3 +84,18 @@ app.get('/', (req, res) => {
 app.listen(port, ()=> {
     console.log(`Bistro boss is sitting on port: ${port}`);
 })
+
+/**
+ * --------------------
+ * Naming convention
+ * --------------------
+ * 
+ * users: userCollection
+ * app.get('/users') =>  sob gulo user k pete ata use kora hoy
+ * app.get('/users/:id) => kono akta single ba particular user k pete ata use kora hoy
+ * app.post('/users') => notun akta user create korte ata use kora hoy
+ * app.patch('/users/:id') => ata diye kono akta particular use k update korte use kora hoy
+ * app.put('/users/:id') => same to patch
+ * app.delete('/users/:id') => delete korte
+ * 
+ * */ 
