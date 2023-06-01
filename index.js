@@ -132,6 +132,13 @@ async function run() {
     app.get('/menu', async(req, res) => {
         const result = await menuCollection.find().toArray();
         res.send(result);
+    });
+
+
+    app.get('/menu', async(req, res) => {
+      const newItem = req.body;
+      const result = await reviewCollection.findOne(newItem);
+      res.send(result);
     })
 
 
