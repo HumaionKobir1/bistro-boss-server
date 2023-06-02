@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 var jwt = require('jsonwebtoken');
-
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const cors = require('cors');
 const port = process.env.PORT || 5000;
 require('dotenv').config()
@@ -165,7 +165,7 @@ async function run() {
       }
       const decodedEmail = req.decoded.email;
       if(email !== decodedEmail){
-        return res.status(403).send({error: true, message: 'porvident access'})
+        return res.status(403).send({error: true, message: 'forbidden access'})
       }
       const query = {email: email};
       const result = await cartCollection.find(query).toArray();
