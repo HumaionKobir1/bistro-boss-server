@@ -2,10 +2,10 @@ const express = require('express');
 const app = express();
 var jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
-const stripe = Stripe(process.env.PAYMENT_SECRET_KEY);
+const stripe = Stripe(' ');
 const cors = require('cors');
 const port = process.env.PORT || 5000;
-require('dotenv').config()
+require('dotenv').config();
 
 
 
@@ -215,6 +215,23 @@ async function run() {
       const deleteResult = await cartCollection.deleteMany(query)
 
       res.send({ insertResult, deleteResult });
+    })
+
+
+    app.get('/admin-stats', async(req, res) => {
+      const users = await usersCollection.estimatedDocumentCount();
+      const products = await menuCollection.estimatedDocumentCount();
+      const orders = await paymentCollection.estimatedDocumentCount();
+
+      // best way to get sum of a field is to use group and sum operation
+      const payments = await paymentCollection.find().toArray();
+      const revenue = payments.reduce((sum, payment) => sum + payment.price, 0)
+      res.send({
+        users,
+        products,
+        orders,
+        revenue
+      })
     })
 
 
