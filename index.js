@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 var jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
-const stripe = Stripe('');
+const stripe = Stripe('sk_test_51NETPuB9B9Ycv5F96oMYC9MaZuGESrSUo0ZqDML87S8EmvALvx3fceh4RLKkWcgizQYHASnkhC8noWxHaaxDq9kp00Sr4nREaU');
 const cors = require('cors');
 const port = process.env.PORT || 5000;
 require('dotenv').config()
@@ -208,7 +208,7 @@ async function run() {
 
 
     // payment related api
-    app.post('/payments', async(req, res) => {
+    app.post('/payments', verifyJWT, async(req, res) => {
       const payment = req.body;
       const result = await paymentCollection.insertOne(payment);
       res.send(result);
