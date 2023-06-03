@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 var jwt = require('jsonwebtoken');
-const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
+const Stripe = require('stripe');
+const stripe = Stripe('sk_test_51NETPuB9B9Ycv5F96oMYC9MaZuGESrSUo0ZqDML87S8EmvALvx3fceh4RLKkWcgizQYHASnkhC8noWxHaaxDq9kp00Sr4nREaU');
 const cors = require('cors');
 const port = process.env.PORT || 5000;
 require('dotenv').config()
@@ -54,6 +55,7 @@ async function run() {
     const usersCollection = client.db("bistroDb").collection('users');
     const reviewCollection = client.db("bistroDb").collection('reviews');
     const cartCollection = client.db("bistroDb").collection('carts');
+    const paymentCollection = client.db('bistroDb').collection('payments');
 
     app.post('/jwt', (req, res) => {
       const user = req.body;
@@ -183,6 +185,32 @@ async function run() {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
       const result = await cartCollection.deleteOne(query);
+      res.send(result);
+    })
+
+
+
+    app.post('/create-payment-intent', verifyJWT, async(req, res) => {
+      const {price} = req.body;
+      const amount = price * 100;
+      console.log(price, amount);
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ['card']
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
+
+    })
+
+
+    // payment related api
+    app.post('/payments', async(req, res) => {
+      const payment = req.body;
+      const result = await paymentCollection.insertOne(payment);
       res.send(result);
     })
 
